@@ -1,0 +1,40 @@
+import "./style.css";
+
+const token =
+  "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImU1MDZmZjMwZDJiMWM3NTg5YmEyZDZmZWNlYjczODFiYWRjY2JjYzBjZmM2NWFhODM3OTYwYzcyMjhhNTg5ZTliNTc0ZTc0YjA4NmNkN2U1In0.eyJhdWQiOiIxMzM1MTZkZC1iMTg0LTQ4ZWItOTBlNi1hNzZlNmRjNDA4MDUiLCJqdGkiOiJlNTA2ZmYzMGQyYjFjNzU4OWJhMmQ2ZmVjZWI3MzgxYmFkY2NiY2MwY2ZjNjVhYTgzNzk2MGM3MjI4YTU4OWU5YjU3NGU3NGIwODZjZDdlNSIsImlhdCI6MTcwODQzMTAzMywibmJmIjoxNzA4NDMxMDMzLCJleHAiOjE3MjI0NzA0MDAsInN1YiI6IjEwNjY0NzU4IiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxNTY0NjU4LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiZGEzYzVkODctYzI1YS00MTRiLWExOWEtNTZhMTQxYWFlMjAyIn0.A0mDkET1yE9bJwCiuUTozp9f1aGwULot74rBfIyFmxzd00XhbnRiCopbU05MoN0LkPQav4JIC4HOwcH_xpg0GWcG19EsnwHgiI-jKy_YmaUP1kKAEQOf8DCXOApX3JythIAMphSElYxKaKoCxriXdEleIVm1DNOl_jvZJt6d2kmDc8KRn00cuu1lyMFWaRGRCtOhkRxd11kLcAbsEqhOIcx5ZcF11ydb0SEUXLeVcPtAptg7opE_GwiLE0usNrPtckN0qYhSuCTRypNBvagvuNm30F9sSZxTuqLlgbs_eqfJrR4GPg_WNDG6be4LqAxuOsX62KW5FIB5vdft9l6uGQ";
+
+const url = "https://www.amocrm.ru";
+
+// const authCode =
+//   "def502004836ca32ae0a46ad80c0e4b91498cf0efb1d479e80bba48b69417990f0a410cb31e7d2c92e129fb966dab5a16f4be5aec83785612f3708bf541a6a396be9bdc4702f878bb0d4b2ebb4030da66702c15f6226250aff242d505839789781872a0be3c2fa013ef1dc4165a1f2fe2e266265b1e41f7c2d07d7e73ae36f604a51d86685f639d71e3a9a7d7ccbffc27c10bc4b8aa12f6a8aa9bb3f948e8bf106976ff088b3d4289b8a3bc2deb32dee5cd3eb1b331543dfced7fb196c1ad47a86024964de210c26bbbf240a53d19902c3b1498f3601d03f72cec0a14e5ceee80f679d36d55c34f9d86c21d82fb5ae22a72cc898d0c078b91df37a8fb66692e36134f329e62c4ac02b756d790e455cedc157defeff6280556dcafcdce2691e3183db0d53eb9f3a5a00dcb3de50e3214a33c34f82ab7250bf4328befe144b0a8cdc0d1e6c104fffda93d857746b178b30eae10a35d16afe5071c25abaeb287d060564c92df71aac0eb28864506a5a445cb1f4294557a36a555cf9efef2be57e803f5eb13b82683730edc1f5617faf88505830b8efb7f1da7488486f6541e3eded09194309b5a0ff8f3aa121af89615269d7af07362571f26952a5750e3fa688454c9b6456db3409c4b58cd34b707310eaa2565a49cb18dd2f3e065dc46a8c8f77b0d6415d783e024b";
+
+async function getAccessToken() {
+  try {
+    const response = await fetch(
+      `https://thingproxy.freeboard.io/fetch/https://klokovevgen.amocrm.ru/api/v4/leads`,
+
+      {
+        /* method: "POST",
+        body: {
+          client_id: "133516dd-b184-48eb-90e6-a76e6dc40805",
+          client_secret:
+            "A4ZlpEE7JPKNiy8DuEbXssAzASnF10ti3lCREefeSkzWR6ppQR3TIXgtPoqFq9hP",
+          grant_type: "authorization_code",
+          code: "def50200f6f756b38c4b29c61a83617d6f79cb0f2e8efaf05bb6ace0ad237d2e164fe825515159dcd33a7f4c8dd9a362c80f700448c329d68c0c821382c4e63064eb7ebcac4e2b498d8eed74c3047f9ca19257a8a6b25c61494fa89f10bbd4f08c51a4dc6416b1c26f879a206ade80dc1d53c14b0fc8609e83da0fab91551427ccbde5097ed6a01ead4f311ad8a2bfcbdba1b19d9042839da4df4dbdd37fcd136ebd38dd54843d06b1939c67b19990da3380987e79b05dc78e4be61e10388dbd105e1179d2d5fc454718e7f18264aaa0cb7e9529898e10c57b3bc66d7da773bf445e7612f7f2b9beed85e201ad5be299d7ff61eba6bca00d43111f393a70cbd0ffa0aea6e78b8fd4c83c95826115a4aa16a5d43b1a6866d577c720b6790450708bbb737106cb77f165d539aae1ed397f1ec827e1d457da1d1479c6966585a3cd01e02a2397610844bdfc5e00dd4d9bd90303ca6c01ec23f3980d1a6f8c1c8f1dc20ac05f47921c25316d57a06ca54c5b802655c8e0d75d8e36b88ef8bbf3f8b18a71576e7a1713eb6f9f182c8737712ec00c75c932656040f60417d1eb640397891af8ad523de636e0834085b9f7235d1d52480e06ac2fc8a779dcea73ee36e545b388bfefec5ce68bd95233e7031b14cce7755acb97160e9428873f1ff1f407c06ffd59bb753a25",
+          redirect_uri: "http://localhost:5173/",
+        }, */
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+getAccessToken();
+
+document.querySelector("#app").innerHTML = "Hello";
