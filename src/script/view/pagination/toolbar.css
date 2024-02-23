@@ -1,0 +1,7 @@
+button {
+  margin: 5px;
+}
+
+.sort-btn.active {
+  background-color: greenyellow;
+}

@@ -1,0 +1,156 @@
+import "./toolbar.css";
+import { getLeadsList } from "../../api/getLeads";
+
+export class Toolbar {
+  constructor(table, loader) {
+    this.table = table;
+    this.loader = loader;
+    this.countLeadsOnPage = [2, 5, 10];
+    this.limit = 5;
+    this.number = 1;
+    this.pageNumber;
+    this.countButtonContainer;
+    this.allLeads;
+    this.prevPageBtn;
+    this.nextPageBtn;
+
+    this.sortBtnContainer;
+    this.sortButtonsName = [
+      "Сортировать по названию сделки",
+      "Сортировать по бюджету",
+    ];
+    this.container;
+    this.sortButtons = [];
+    this.sortData;
+    this.isSort;
+  }
+
+  render() {
+    this.container = document.createElement("div");
+
+    this.pageNumber = document.createElement("p");
+    this.pageNumber.style.display = "inline-block";
+    this.pageNumber.innerHTML = this.number;
+
+    this.countButtonContainer = document.createElement("div");
+    this.countLeadsOnPage.map((item) => {
+      const button = document.createElement("button");
+      button.innerHTML = item;
+      button.onclick = async () => {
+        try {
+          await this.handlePressPagination(1, item);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      this.countButtonContainer.append(button);
+    });
+
+    this.allLeads = document.createElement("button");
+    this.allLeads.innerHTML = "Все сделки";
+    this.countButtonContainer.append(this.allLeads);
+    this.allLeads.onclick = async () => {
+      try {
+        await this.handlePressPagination(1, 5);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    this.prevPageBtn = document.createElement("button");
+    this.prevPageBtn.innerHTML = "<<";
+    this.prevPageBtn.disabled = true;
+    this.prevPageBtn.onclick = async () => {
+      try {
+        await this.handlePressPagination(this.number - 1, this.limit);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    this.nextPageBtn = document.createElement("button");
+    this.nextPageBtn.innerHTML = ">>";
+    this.nextPageBtn.onclick = async () => {
+      try {
+        await this.handlePressPagination(this.number + 1, this.limit);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    this.countButtonContainer.append(
+      this.prevPageBtn,
+      this.pageNumber,
+      this.nextPageBtn
+    );
+
+    this.sortBtnContainer = document.createElement("div");
+
+    this.sortButtonsName.map((item) => {
+      const button = document.createElement("button");
+      button.classList.add("sort-btn");
+      button.innerHTML = item;
+      this.sortButtons.push(button);
+      button.onclick = async () => {
+        if (button.classList.contains("active")) {
+          await this.handlePressPagination(1, this.limit);
+          this.isSort = false;
+          button.classList.remove("active");
+        } else {
+          await this.sortByName(item);
+          this.isSort = true;
+          this.sortButtons.map((item) => item.classList.remove("active"));
+          button.classList.add("active");
+        }
+      };
+      this.sortBtnContainer.append(button);
+    });
+
+    this.container.append(this.countButtonContainer, this.sortBtnContainer);
+
+    return this.container;
+  }
+
+  async handlePressPagination(pageNumber, limit) {
+    this.loader.classList.add("active");
+    const data = await getLeadsList(pageNumber, limit);
+    this.number = pageNumber;
+    this.limit = limit;
+    this.loader.classList.remove("active");
+    this.pageNumber.innerHTML = this.number;
+    if (data._links.prev) {
+      this.prevPageBtn.disabled = false;
+    } else {
+      this.prevPageBtn.disabled = true;
+    }
+    if (data._links.next) {
+      this.nextPageBtn.disabled = false;
+    } else {
+      this.nextPageBtn.disabled = true;
+    }
+    this.table.render(data, this.limit);
+  }
+
+  async sortByName(button) {
+    this.loader.classList.add("active");
+    const data = await getLeadsList();
+    this.loader.classList.remove("active");
+    if (button === "Сортировать по названию сделки") {
+      data._embedded.leads.sort((a, b) => {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
+          return -1;
+        }
+        if (a.name.toLowerCase() > b.name.toLowerCase()) {
+          return 1;
+        }
+        return 0;
+      });
+
+      this.table.render(data, 5);
+    } else {
+      data._embedded.leads.sort((a, b) => a.price - b.price);
+
+      this.table.render(data, 5);
+    }
+  }
+}
