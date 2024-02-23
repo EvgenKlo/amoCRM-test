@@ -1,11 +1,11 @@
 import { getLeadsList } from "../api/getLeads";
-import { renderTable } from "./table";
+import { renderTable } from "./renderTable";
 
 export class Pagination {
-  constructor(table, loader, countLeadsOnPage) {
+  constructor(table, loader) {
     this.table = table;
     this.loader = loader;
-    this.countLeadsOnPage = countLeadsOnPage;
+    this.countLeadsOnPage = [2, 5, 10];
     this.limit = 5;
     this.number = 1;
     this.pageNumber;
@@ -28,7 +28,21 @@ export class Pagination {
         try {
           this.limit = item;
           this.number = 1;
-          await this.handlePressBtn();
+          this.loader.classList.add("active");
+          const data = await getLeadsList(this.number, this.limit);
+          this.loader.classList.remove("active");
+          this.pageNumber.innerHTML = this.number;
+          if (data._links.prev) {
+            this.prevPageBtn.disabled = false;
+          } else {
+            this.prevPageBtn.disabled = true;
+          }
+          if (data._links.next) {
+            this.nextPageBtn.disabled = false;
+          } else {
+            this.nextPageBtn.disabled = true;
+          }
+          renderTable(this.table, data, this.limit);
         } catch (error) {
           console.log(error);
         }
@@ -43,7 +57,21 @@ export class Pagination {
       try {
         this.limit = 5;
         this.number = 1;
-        await this.handlePressBtn();
+        this.loader.classList.add("active");
+        const data = await getLeadsList(this.number, this.limit);
+        this.loader.classList.remove("active");
+        this.pageNumber.innerHTML = this.number;
+        if (data._links.prev) {
+          this.prevPageBtn.disabled = false;
+        } else {
+          this.prevPageBtn.disabled = true;
+        }
+        if (data._links.next) {
+          this.nextPageBtn.disabled = false;
+        } else {
+          this.nextPageBtn.disabled = true;
+        }
+        renderTable(this.table, data, this.limit);
       } catch (error) {
         console.log(error);
       }
@@ -55,7 +83,17 @@ export class Pagination {
     this.prevPageBtn.onclick = async () => {
       try {
         this.number--;
-        await this.handlePressBtn();
+        this.loader.classList.add("active");
+        const data = await getLeadsList(this.number, this.limit);
+        this.loader.classList.remove("active");
+        this.pageNumber.innerHTML = this.number;
+        if (data._links.prev) {
+          this.prevPageBtn.disabled = false;
+        } else {
+          this.prevPageBtn.disabled = true;
+        }
+        this.nextPageBtn.disabled = false;
+        renderTable(this.table, data, this.limit);
       } catch (error) {
         console.log(error);
       }
@@ -66,7 +104,17 @@ export class Pagination {
     this.nextPageBtn.onclick = async () => {
       try {
         this.number++;
-        await this.handlePressBtn();
+        this.loader.classList.add("active");
+        const data = await getLeadsList(this.number, this.limit);
+        this.loader.classList.remove("active");
+        this.pageNumber.innerHTML = this.number;
+        if (data._links.next) {
+          this.nextPageBtn.disabled = false;
+        } else {
+          this.nextPageBtn.disabled = true;
+        }
+        this.prevPageBtn.disabled = false;
+        renderTable(this.table, data, this.limit);
       } catch (error) {
         console.log(error);
       }
@@ -79,23 +127,5 @@ export class Pagination {
     );
 
     return this.countButtonContainer;
-  }
-
-  async handlePressBtn() {
-    this.loader.classList.add("active");
-    const data = await getLeadsList(this.number, this.limit);
-    this.loader.classList.remove("active");
-    this.pageNumber.innerHTML = this.number;
-    if (data._links.prev) {
-      this.prevPageBtn.disabled = false;
-    } else {
-      this.prevPageBtn.disabled = true;
-    }
-    if (data._links.next) {
-      this.nextPageBtn.disabled = false;
-    } else {
-      this.nextPageBtn.disabled = true;
-    }
-    renderTable(this.table, data, this.limit);
   }
 }
