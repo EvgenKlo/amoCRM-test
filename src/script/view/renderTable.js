@@ -6,8 +6,9 @@ const tableHeadTitle = [
   "Дата изменения",
 ];
 
-export function renderTable(table, data) {
+export function renderTable(table, data, limit) {
   table.innerHTML = "";
+
   const headRow = document.createElement("tr");
   tableHeadTitle.map((item) => {
     const headCeil = document.createElement("th");
@@ -15,10 +16,11 @@ export function renderTable(table, data) {
     headRow.append(headCeil);
   });
   table.append(headRow);
+
   data._embedded.leads.map((item, index) => {
     const tableRow = document.createElement("tr");
 
-    const numberRow = index + 1;
+    const numberRow = limit * data._page - limit + index + 1;
     const numberCeil = document.createElement("td");
     numberCeil.innerHTML = numberRow;
 
@@ -47,5 +49,6 @@ export function renderTable(table, data) {
     );
     table.append(tableRow);
   });
+
   return table;
 }

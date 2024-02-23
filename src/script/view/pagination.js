@@ -1,69 +1,131 @@
-import { getLeadsList } from "../api/api";
+import { getLeadsList } from "../api/getLeads";
 import { renderTable } from "./renderTable";
 
-const countLeadsOnPage = [2, 5, 10];
+export class Pagination {
+  constructor(table, loader) {
+    this.table = table;
+    this.loader = loader;
+    this.countLeadsOnPage = [2, 5, 10];
+    this.limit = 5;
+    this.number = 1;
+    this.pageNumber;
+    this.countButtonContainer;
+    this.allLeads;
+    this.prevPageBtn;
+    this.nextPageBtn;
+  }
 
-export function pagination(table) {
-  let limit = 5;
-  let number = 1;
+  render() {
+    this.pageNumber = document.createElement("p");
+    this.pageNumber.style.display = "inline-block";
+    this.pageNumber.innerHTML = this.number;
 
-  const pageNumber = document.createElement("p");
-  pageNumber.style.display = "inline-block";
-  pageNumber.innerHTML = number;
+    this.countButtonContainer = document.createElement("div");
+    this.countLeadsOnPage.map((item) => {
+      const button = document.createElement("button");
+      button.innerHTML = item;
+      button.onclick = async () => {
+        try {
+          this.limit = item;
+          this.number = 1;
+          this.loader.classList.add("active");
+          const data = await getLeadsList(this.number, this.limit);
+          this.loader.classList.remove("active");
+          this.pageNumber.innerHTML = this.number;
+          if (data._links.prev) {
+            this.prevPageBtn.disabled = false;
+          } else {
+            this.prevPageBtn.disabled = true;
+          }
+          if (data._links.next) {
+            this.nextPageBtn.disabled = false;
+          } else {
+            this.nextPageBtn.disabled = true;
+          }
+          renderTable(this.table, data, this.limit);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      this.countButtonContainer.append(button);
+    });
 
-  const countButtonContainer = document.createElement("div");
-  countLeadsOnPage.map((item) => {
-    const button = document.createElement("button");
-    button.innerHTML = item;
-    button.onclick = async () => {
-      limit = item;
-      number = 1;
-      const data = await getLeadsList(number, item);
-      renderTable(table, data);
-      pageNumber.innerHTML = number;
+    this.allLeads = document.createElement("button");
+    this.allLeads.innerHTML = "Все сделки";
+    this.countButtonContainer.append(this.allLeads);
+    this.allLeads.onclick = async () => {
+      try {
+        this.limit = 5;
+        this.number = 1;
+        this.loader.classList.add("active");
+        const data = await getLeadsList(this.number, this.limit);
+        this.loader.classList.remove("active");
+        this.pageNumber.innerHTML = this.number;
+        if (data._links.prev) {
+          this.prevPageBtn.disabled = false;
+        } else {
+          this.prevPageBtn.disabled = true;
+        }
+        if (data._links.next) {
+          this.nextPageBtn.disabled = false;
+        } else {
+          this.nextPageBtn.disabled = true;
+        }
+        renderTable(this.table, data, this.limit);
+      } catch (error) {
+        console.log(error);
+      }
     };
-    countButtonContainer.append(button);
-  });
-  const allLeads = document.createElement("button");
-  allLeads.innerHTML = "Все сделки";
-  countButtonContainer.append(allLeads);
-  allLeads.onclick = async () => {
-    const data = await getLeadsList(2, 5);
-    renderTable(table, data);
-  };
 
-  const prevPageBtn = document.createElement("button");
-  prevPageBtn.innerHTML = "<<";
-  prevPageBtn.disabled = true;
-  prevPageBtn.onclick = async () => {
-    number--;
-    pageNumber.innerHTML = number;
-    if (number === 1) {
-      prevPageBtn.disabled = true;
-    } else {
-      prevPageBtn.disabled = false;
-    }
-    const data = await getLeadsList(number, limit);
-    renderTable(table, data);
-  };
-  countButtonContainer.append(prevPageBtn);
+    this.prevPageBtn = document.createElement("button");
+    this.prevPageBtn.innerHTML = "<<";
+    this.prevPageBtn.disabled = true;
+    this.prevPageBtn.onclick = async () => {
+      try {
+        this.number--;
+        this.loader.classList.add("active");
+        const data = await getLeadsList(this.number, this.limit);
+        this.loader.classList.remove("active");
+        this.pageNumber.innerHTML = this.number;
+        if (data._links.prev) {
+          this.prevPageBtn.disabled = false;
+        } else {
+          this.prevPageBtn.disabled = true;
+        }
+        this.nextPageBtn.disabled = false;
+        renderTable(this.table, data, this.limit);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  countButtonContainer.append(pageNumber);
+    this.nextPageBtn = document.createElement("button");
+    this.nextPageBtn.innerHTML = ">>";
+    this.nextPageBtn.onclick = async () => {
+      try {
+        this.number++;
+        this.loader.classList.add("active");
+        const data = await getLeadsList(this.number, this.limit);
+        this.loader.classList.remove("active");
+        this.pageNumber.innerHTML = this.number;
+        if (data._links.next) {
+          this.nextPageBtn.disabled = false;
+        } else {
+          this.nextPageBtn.disabled = true;
+        }
+        this.prevPageBtn.disabled = false;
+        renderTable(this.table, data, this.limit);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  const nextPageBtn = document.createElement("button");
-  nextPageBtn.innerHTML = ">>";
-  nextPageBtn.onclick = async () => {
-    number++;
-    pageNumber.innerHTML = number;
-    if (number === 1) {
-      prevPageBtn.disabled = true;
-    } else {
-      prevPageBtn.disabled = false;
-    }
-    const data = await getLeadsList(number, limit);
-    renderTable(table, data);
-  };
-  countButtonContainer.append(nextPageBtn);
+    this.countButtonContainer.append(
+      this.prevPageBtn,
+      this.pageNumber,
+      this.nextPageBtn
+    );
 
-  return countButtonContainer;
+    return this.countButtonContainer;
+  }
 }
