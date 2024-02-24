@@ -12,7 +12,7 @@ export class Table {
     ];
   }
 
-  render(data, limit, pageNumber) {
+  render(data, limit, pageNumber, sort) {
     this.table.innerHTML = "";
 
     const headRow = document.createElement("tr");
@@ -23,33 +23,24 @@ export class Table {
     });
     this.table.append(headRow);
 
-    data._embedded.leads.map((item, index) => {
-      this.buildTable(item, index, limit, pageNumber);
-    });
-
-    return this.table;
-  }
-
-  renderSortTable(data, limit, pageNumber) {
-    this.table.innerHTML = "";
-
-    const headRow = document.createElement("tr");
-    this.tableHeadTitle.map((item) => {
-      const headCeil = document.createElement("th");
-      headCeil.innerHTML = item;
-      headRow.append(headCeil);
-    });
-    this.table.append(headRow);
-
-    data._embedded.leads
-      .filter((item, index) => {
-        if (index >= pageNumber * limit - limit && index < pageNumber * limit) {
-          return item;
-        }
-      })
-      .map((item, index) => {
+    if (sort) {
+      data._embedded.leads
+        .filter((item, index) => {
+          if (
+            index >= pageNumber * limit - limit &&
+            index < pageNumber * limit
+          ) {
+            return item;
+          }
+        })
+        .map((item, index) => {
+          this.buildTable(item, index, limit, pageNumber);
+        });
+    } else {
+      data._embedded.leads.map((item, index) => {
         this.buildTable(item, index, limit, pageNumber);
       });
+    }
 
     return this.table;
   }

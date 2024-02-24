@@ -115,7 +115,7 @@ export class Toolbar {
       this.limit = limit;
       this.pageNumber.innerHTML = this.number;
       this.nextPrevBtnDisabler();
-      this.table.renderSortTable(this.sortData, this.limit, this.number);
+      this.table.render(this.sortData, this.limit, this.number, this.isSort);
     } else {
       try {
         const data = await getLeadsList(pageNumber, limit);
@@ -132,7 +132,7 @@ export class Toolbar {
         } else {
           this.nextPageBtn.disabled = true;
         }
-        this.table.render(data, this.limit, this.number);
+        this.table.render(data, this.limit, this.number, this.isSort);
       } catch (error) {
         console.log(error);
       }
@@ -141,43 +141,47 @@ export class Toolbar {
   }
 
   async handleSortBtn(buttonName, button) {
-    this.loader.classList.add("active");
+    try {
+      this.loader.classList.add("active");
 
-    const data = await getLeadsList();
+      const data = await getLeadsList();
 
-    this.number = 1;
+      this.number = 1;
 
-    this.pageNumber.innerHTML = this.number;
+      this.pageNumber.innerHTML = this.number;
 
-    this.isSort = true;
-    this.sortButtons.map((item) => item.classList.remove("active"));
-    button.classList.add("active");
+      this.isSort = true;
+      this.sortButtons.map((item) => item.classList.remove("active"));
+      button.classList.add("active");
 
-    if (buttonName === "Сортировать по названию сделки") {
-      data._embedded.leads.sort((a, b) => {
-        if (a.name.toLowerCase() < b.name.toLowerCase()) {
-          return -1;
-        }
-        if (a.name.toLowerCase() > b.name.toLowerCase()) {
-          return 1;
-        }
-        return 0;
-      });
+      if (buttonName === "Сортировать по названию сделки") {
+        data._embedded.leads.sort((a, b) => {
+          if (a.name.toLowerCase() < b.name.toLowerCase()) {
+            return -1;
+          }
+          if (a.name.toLowerCase() > b.name.toLowerCase()) {
+            return 1;
+          }
+          return 0;
+        });
 
-      this.sortData = data;
+        this.sortData = data;
 
-      this.table.renderSortTable(this.sortData, this.limit, this.number);
-    } else {
-      data._embedded.leads.sort((a, b) => a.price - b.price);
+        this.table.render(this.sortData, this.limit, this.number, this.isSort);
+      } else {
+        data._embedded.leads.sort((a, b) => a.price - b.price);
 
-      this.sortData = data;
+        this.sortData = data;
 
-      this.table.renderSortTable(this.sortData, this.limit, this.number);
+        this.table.render(this.sortData, this.limit, this.number, this.isSort);
+      }
+
+      this.nextPrevBtnDisabler();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      this.loader.classList.remove("active");
     }
-
-    this.nextPrevBtnDisabler();
-
-    this.loader.classList.remove("active");
   }
 
   nextPrevBtnDisabler() {
