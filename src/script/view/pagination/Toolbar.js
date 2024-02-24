@@ -97,10 +97,7 @@ export class Toolbar {
           this.isSort = false;
           button.classList.remove("active");
         } else {
-          await this.sortByName(item);
-          this.isSort = true;
-          this.sortButtons.map((item) => item.classList.remove("active"));
-          button.classList.add("active");
+          await this.sortTable(item, button);
         }
       };
       this.sortBtnContainer.append(button);
@@ -131,11 +128,16 @@ export class Toolbar {
     this.table.render(data, this.limit);
   }
 
-  async sortByName(button) {
+  async sortTable(buttonName, button) {
     this.loader.classList.add("active");
+
     const data = await getLeadsList();
-    this.loader.classList.remove("active");
-    if (button === "Сортировать по названию сделки") {
+
+    this.isSort = true;
+    this.sortButtons.map((item) => item.classList.remove("active"));
+    button.classList.add("active");
+
+    if (buttonName === "Сортировать по названию сделки") {
       data._embedded.leads.sort((a, b) => {
         if (a.name.toLowerCase() < b.name.toLowerCase()) {
           return -1;
@@ -146,11 +148,17 @@ export class Toolbar {
         return 0;
       });
 
-      this.table.render(data, 5);
+      this.sortData = data;
+
+      this.table.render(this.sortData, this.limit);
     } else {
       data._embedded.leads.sort((a, b) => a.price - b.price);
 
-      this.table.render(data, 5);
+      this.sortData = data;
+
+      this.table.render(this.sortData, this.limit);
     }
+
+    this.loader.classList.remove("active");
   }
 }
