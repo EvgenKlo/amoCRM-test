@@ -93,8 +93,8 @@ export class Toolbar {
       this.sortButtons.push(button);
       button.onclick = async () => {
         if (button.classList.contains("active")) {
-          await this.handlePressPagination(1, this.limit);
           this.isSort = false;
+          await this.handlePressPagination(1, this.limit);
           button.classList.remove("active");
         } else {
           await this.sortTable(item, button);
@@ -110,28 +110,40 @@ export class Toolbar {
 
   async handlePressPagination(pageNumber, limit) {
     this.loader.classList.add("active");
-    const data = await getLeadsList(pageNumber, limit);
-    this.number = pageNumber;
-    this.limit = limit;
+    if (this.isSort) {
+      this.number = pageNumber;
+      this.limit = limit;
+      this.pageNumber.innerHTML = this.number;
+      this.nextPrevBtnDisabler();
+      this.table.renderSortTable(this.sortData, this.limit, this.number);
+    } else {
+      const data = await getLeadsList(pageNumber, limit);
+      this.number = pageNumber;
+      this.limit = limit;
+      this.pageNumber.innerHTML = this.number;
+      if (data._links.prev) {
+        this.prevPageBtn.disabled = false;
+      } else {
+        this.prevPageBtn.disabled = true;
+      }
+      if (data._links.next) {
+        this.nextPageBtn.disabled = false;
+      } else {
+        this.nextPageBtn.disabled = true;
+      }
+      this.table.render(data, this.limit, this.number);
+    }
     this.loader.classList.remove("active");
-    this.pageNumber.innerHTML = this.number;
-    if (data._links.prev) {
-      this.prevPageBtn.disabled = false;
-    } else {
-      this.prevPageBtn.disabled = true;
-    }
-    if (data._links.next) {
-      this.nextPageBtn.disabled = false;
-    } else {
-      this.nextPageBtn.disabled = true;
-    }
-    this.table.render(data, this.limit);
   }
 
   async sortTable(buttonName, button) {
     this.loader.classList.add("active");
 
     const data = await getLeadsList();
+
+    this.number = 1;
+
+    this.pageNumber.innerHTML = this.number;
 
     this.isSort = true;
     this.sortButtons.map((item) => item.classList.remove("active"));
@@ -150,15 +162,31 @@ export class Toolbar {
 
       this.sortData = data;
 
-      this.table.render(this.sortData, this.limit);
+      this.table.renderSortTable(this.sortData, this.limit, this.number);
     } else {
       data._embedded.leads.sort((a, b) => a.price - b.price);
 
       this.sortData = data;
 
-      this.table.render(this.sortData, this.limit);
+      this.table.renderSortTable(this.sortData, this.limit, this.number);
     }
 
+    this.nextPrevBtnDisabler();
+
     this.loader.classList.remove("active");
+  }
+
+  nextPrevBtnDisabler() {
+    if (this.number * this.limit - this.limit !== 0) {
+      this.prevPageBtn.disabled = false;
+    } else {
+      this.prevPageBtn.disabled = true;
+    }
+
+    if (this.number * this.limit < this.sortData._embedded.leads.length) {
+      this.nextPageBtn.disabled = false;
+    } else {
+      this.nextPageBtn.disabled = true;
+    }
   }
 }

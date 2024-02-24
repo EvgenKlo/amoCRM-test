@@ -13,7 +13,7 @@ async function render() {
 
   const table = new Table();
 
-  table.render(data, 5);
+  table.render(data, 5, 1);
 
   const toolbar = new Toolbar(table, loader).render();
 
