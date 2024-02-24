@@ -97,7 +97,7 @@ export class Toolbar {
           await this.handlePressPagination(1, this.limit);
           button.classList.remove("active");
         } else {
-          await this.sortTable(item, button);
+          await this.handleSortBtn(item, button);
         }
       };
       this.sortBtnContainer.append(button);
@@ -117,26 +117,30 @@ export class Toolbar {
       this.nextPrevBtnDisabler();
       this.table.renderSortTable(this.sortData, this.limit, this.number);
     } else {
-      const data = await getLeadsList(pageNumber, limit);
-      this.number = pageNumber;
-      this.limit = limit;
-      this.pageNumber.innerHTML = this.number;
-      if (data._links.prev) {
-        this.prevPageBtn.disabled = false;
-      } else {
-        this.prevPageBtn.disabled = true;
+      try {
+        const data = await getLeadsList(pageNumber, limit);
+        this.number = pageNumber;
+        this.limit = limit;
+        this.pageNumber.innerHTML = this.number;
+        if (data._links.prev) {
+          this.prevPageBtn.disabled = false;
+        } else {
+          this.prevPageBtn.disabled = true;
+        }
+        if (data._links.next) {
+          this.nextPageBtn.disabled = false;
+        } else {
+          this.nextPageBtn.disabled = true;
+        }
+        this.table.render(data, this.limit, this.number);
+      } catch (error) {
+        console.log(error);
       }
-      if (data._links.next) {
-        this.nextPageBtn.disabled = false;
-      } else {
-        this.nextPageBtn.disabled = true;
-      }
-      this.table.render(data, this.limit, this.number);
     }
     this.loader.classList.remove("active");
   }
 
-  async sortTable(buttonName, button) {
+  async handleSortBtn(buttonName, button) {
     this.loader.classList.add("active");
 
     const data = await getLeadsList();
